@@ -14,6 +14,7 @@ class Migration {
     int index = cqlCommand.indexOf(";");
 		int count = 0;
 		while (index != -1) {
+		  // there's another match, continue
 			count++;
 			cqlCommand = cqlCommand.substring(index + 1);
 			index = cqlCommand.indexOf("is");

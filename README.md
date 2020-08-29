@@ -26,6 +26,7 @@ For play app for example:
 ### DB Migrations
 1) each migration should be in plaintext, and contain only a single cql command (i.e., only use ; once).
   * Technically we could allow more than one command, but for now validation requires checking each command and one command per file (particularly, ALTER TABLE calls are the only ones that are allowed to fail).
+2) files should have .cql extension. If they don't, we will not run that file.
 ## Development
 TODO Project specific stuff should be included in gitignore
 - How to hide InventoryMapper stuff? `src/main/java/com/ryanquey/datautils/cassandraHelpers/InventoryMapper.java`

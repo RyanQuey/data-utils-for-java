@@ -25,7 +25,15 @@ class MigrationRunner {
     File[] migrationFiles = FileHelpers.getFilesFromDir(pathToMigrations);
     for (File file : migrationFiles) {
  	  	if (file.isFile()) {
-        System.out.println(file.getName());
+        String filename = file.getName();
+        System.out.println("Migration Filename: " + filename);
+
+        // make sure to rule out e.g., swp files
+        if (filename.substring(filename.length() - 4) != ".cql") {
+          System.out.println("skipping file that does not end in .cql");
+          continue;
+        }
+
         String cql = Files.asCharSource(file, StandardCharsets.UTF_8).read();// throws IOException
         Migration migration = new Migration(cql); // throws Exception
         System.out.println("Added new migration:" + migration.cql);

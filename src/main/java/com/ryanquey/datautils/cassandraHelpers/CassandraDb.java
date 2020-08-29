@@ -26,7 +26,7 @@ public class CassandraDb {
     
   // InventoryMapper is our class, built off of C* java driver stuff
 
-  private static void initialize (String keyspaceNameStr) throws Exception {
+  public static void initialize (String keyspaceNameStr) throws Exception {
     try {
       String kafkaIPAndPortStr = System.getenv("KAFKA_URL") != null ? System.getenv("KAFKA_URL") : "localhost:9092";
       String cassandraIPStr = System.getenv("CASSANDRA_URL") != null ? System.getenv("CASSANDRA_URL") : "127.0.0.1"; 
@@ -42,27 +42,43 @@ public class CassandraDb {
 
       // TODO try to import ./application.conf and use that?
       System.out.println("    setting the session");
-      CqlIdentifier keyspace = CqlIdentifier.fromCql(keyspaceName);
-      CassandraDb.session = CqlSession.builder()
-        .withKeyspace(keyspace)
-        .addContactPoint(cassandraIP)
-        .withLocalDatacenter(datacenter) // now required since we're setting contact points
-        .build();
 
-      System.out.println("    setting the inventory mapper for DAO");
-      inventoryMapper = InventoryMapper
-        .builder(CassandraDb.session) // calls the builder method we defined in our InventoryMapper class, which is wrapper for InventoryMapperBuilder
-        .withDefaultKeyspace(keyspaceName)
-        .build();
-
-      // create keyspace if doesn't exist already, and initialize tables
-      System.out.println("    running db migrations");
-      // AMigrationRunner.runMigrations();
-      // TODO they don't recommend changing keyspace during a run. Not sure when you're supposed to set it htough
-      // NOTE I think I don't need this anymore,, because we're setting keyspace above
       if (useKeyspaceOnInit) {
+        CqlIdentifier keyspace = CqlIdentifier.fromCql(keyspaceName);
+        CassandraDb.session = CqlSession.builder()
+          .withKeyspace(keyspace)
+          .addContactPoint(cassandraIP)
+          .withLocalDatacenter(datacenter) // now required since we're setting contact points
+          .build();
+
+        System.out.println("    setting the inventory mapper for DAO");
+        inventoryMapper = InventoryMapper
+          .builder(CassandraDb.session) // calls the builder method we defined in our InventoryMapper class, which is wrapper for InventoryMapperBuilder
+          .withDefaultKeyspace(keyspaceName)
+          .build();
+
+        // create keyspace if doesn't exist already, and initialize tables
+        System.out.println("    running db migrations");
+        // AMigrationRunner.runMigrations();
+        // TODO they don't recommend changing keyspace during a run. Not sure when you're supposed to set it htough
+        // NOTE I think I don't need this anymore,, because we're setting keyspace above
         session.execute("USE " + keyspaceName + ";");
+      } else {
+        CassandraDb.session = CqlSession.builder()
+          .addContactPoint(cassandraIP)
+          .withLocalDatacenter(datacenter) // now required since we're setting contact points
+          .build();
+
+        System.out.println("    setting the inventory mapper for DAO");
+        inventoryMapper = InventoryMapper
+          .builder(CassandraDb.session) // calls the builder method we defined in our InventoryMapper class, which is wrapper for InventoryMapperBuilder
+          .build();
+
       }
+        // create keyspace if doesn't exist already, and initialize tables
+        // AMigrationRunner.runMigrations();
+        // TODO they don't recommend changing keyspace during a run. Not sure when you're supposed to set it htough
+        // NOTE I think I don't need this anymore,, because we're setting keyspace above
     } catch (Exception e) {
       // TODO remove this try catch, we'll just catch later
       e.printStackTrace();
