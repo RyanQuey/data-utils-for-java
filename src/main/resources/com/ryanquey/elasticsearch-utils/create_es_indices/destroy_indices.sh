@@ -1,8 +1,6 @@
 # https://stackoverflow.com/a/8880633/6952495
 declare -a tables=(
-	"search_queries_by_term" 
-	"podcasts_by_language" 
-	"episodes_by_podcast"
+	#"podcasts_by_language" 
 )
 
 ## now loop through the above array

@@ -1,4 +1,4 @@
-package com.ryanquey.data-utils.helpers;
+package com.ryanquey.datautils.helpers;
 
 import java.util.ArrayList;
 import java.util.Arrays;

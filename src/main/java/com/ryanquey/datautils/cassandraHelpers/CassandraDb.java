@@ -1,4 +1,4 @@
-package com.ryanquey.data-utils.cassandraHelpers;
+package com.ryanquey.datautils.cassandraHelpers;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.CqlIdentifier;
@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 // import java.sql.Timestamp;
 
-import com.ryanquey.data_utils.migrations.AMigrationRunner;
 // import com.datastax.oss.driver.api.core.servererrors.InvalidQueryException;
 
 public class CassandraDb {
@@ -55,7 +54,7 @@ public class CassandraDb {
 
       // create keyspace if doesn't exist already, and initialize tables
       System.out.println("    running db migrations");
-      AMigrationRunner.runMigrations();
+      // AMigrationRunner.runMigrations();
       // TODO they don't recommend changing keyspace during a run. Not sure when you're supposed to set it htough
       // NOTE I think I don't need this anymore,, because we're setting keyspace above
       session.execute("USE " + keyspaceName + ";");

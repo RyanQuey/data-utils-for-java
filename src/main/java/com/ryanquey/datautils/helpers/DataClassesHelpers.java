@@ -1,4 +1,4 @@
-package com.ryanquey.data-utils.helpers;
+package com.ryanquey.datautils.helpers;
 
 import java.lang.reflect.*;
 import java.lang.IllegalAccessException;

@@ -7,8 +7,22 @@ Some utils for Cassandra, Elasticsearch, and just java in general that I like
 For play app for example:
 1) clone into a `./lib` dir
 2) add es indices into resources if you use es
+3) add cassandra daos for every dao class you have 
 
-See https://www.playframework.com/documentation/2.8.x/sbtSubProjects for more
+  ```
+  @DaoFactory 
+  PodcastByLanguageDao podcastByLanguageDao(@DaoTable String table);
+  ```
+
+4) repackage
+  ```
+  mvn package
+  ```
+
+5) Use the jar wherever you need to in your project
+6) Put the jar in `./lib`
+  See [here](https://www.playframework.com/documentation/2.8.x/sbtDependencies) for more. I guess that's where play looks for jars.
 
 ## Development
 TODO Project specific stuff should be included in gitignore
+- How to hide InventoryMapper stuff? `src/main/java/com/ryanquey/datautils/cassandraHelpers/InventoryMapper.java`

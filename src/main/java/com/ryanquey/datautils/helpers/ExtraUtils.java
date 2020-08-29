@@ -1,4 +1,5 @@
-package com.ryanquey.data-utils.helpers;
+package com.ryanquey.datautils.helpers;
+import com.google.common.base.Strings;
 
 class ExtraUtils {
   // use like: ExtraUtils.spin("topic")

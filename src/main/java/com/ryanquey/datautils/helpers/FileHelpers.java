@@ -1,4 +1,4 @@
-package com.ryanquey.data-utils.helpers;
+package com.ryanquey.datautils.helpers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.net.URL;
 import java.io.IOException; 
 import java.net.URISyntaxException;
 
-import com.ryanquey.data-utils.helpers.HttpReq;
+import com.ryanquey.datautils.helpers.HttpReq;
 
 
 public class FileHelpers {
