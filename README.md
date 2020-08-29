@@ -50,3 +50,5 @@ git submodule update
 ## Development
 TODO Project specific stuff should be included in gitignore
 - How to hide InventoryMapper stuff? `src/main/java/com/ryanquey/datautils/cassandraHelpers/InventoryMapper.java`
+
+See example in my `intertextuality-graph` project

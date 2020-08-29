@@ -2,12 +2,13 @@ package com.ryanquey.datautils.cassandraHelpers;
 import com.ryanquey.datautils.helpers.FileHelpers;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.io.File;
 import com.google.common.reflect.ClassPath;
 import com.google.common.io.Files;
-import com.google.common.io.Files;
 import java.nio.charset.StandardCharsets;
 import java.io.IOException;
+import java.util.Comparator;
 
 class MigrationRunner {
   /*
@@ -23,6 +24,10 @@ class MigrationRunner {
 
   public static void loadAll () throws IOException, Exception {
     File[] migrationFiles = FileHelpers.getFilesFromDir(pathToMigrations);
+    // sort by filename, so first migrations are ran first
+    Comparator<File> comparator = Comparator.comparing(File::getName);
+    Arrays.sort(migrationFiles, comparator);
+
     for (File file : migrationFiles) {
  	  	if (file.isFile()) {
         String filename = file.getName();
