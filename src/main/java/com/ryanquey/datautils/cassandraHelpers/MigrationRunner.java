@@ -34,8 +34,9 @@ class MigrationRunner {
         System.out.println("Migration Filename: " + filename);
 
         // make sure to rule out e.g., swp files
-        if (filename.substring(filename.length() - 4) != ".cql") {
-          System.out.println("skipping file that does not end in .cql");
+        String endsWith = filename.substring(filename.length() - 4);
+        if (!endsWith.equals(".cql")) {
+          System.out.println("skipping file that does not end in .cql; ends with " + endsWith);
           continue;
         }
 
