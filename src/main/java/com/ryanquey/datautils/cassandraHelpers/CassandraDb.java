@@ -22,13 +22,16 @@ public class CassandraDb {
   public static InventoryMapper inventoryMapper;
   public static CqlSession session;
   public static String keyspaceName;
+  public static Boolean useKeyspaceOnInit = true;
     
   // InventoryMapper is our class, built off of C* java driver stuff
 
-  public static void initialize () throws Exception {
+  private static void initialize (String keyspaceNameStr) throws Exception {
     try {
       String kafkaIPAndPortStr = System.getenv("KAFKA_URL") != null ? System.getenv("KAFKA_URL") : "localhost:9092";
       String cassandraIPStr = System.getenv("CASSANDRA_URL") != null ? System.getenv("CASSANDRA_URL") : "127.0.0.1"; 
+      String datacenter = System.getenv("CASSANDRA_DATACENTER") != null ? System.getenv("CASSANDRA_URL") : "dc1"; 
+      keyspaceName = keyspaceNameStr;
 
       System.out.println("    URLs:");
       System.out.println("        Cassandra IP: " + cassandraIPStr);
@@ -43,7 +46,7 @@ public class CassandraDb {
       CassandraDb.session = CqlSession.builder()
         .withKeyspace(keyspace)
         .addContactPoint(cassandraIP)
-        .withLocalDatacenter("DC1") // now required since we're setting contact points
+        .withLocalDatacenter(datacenter) // now required since we're setting contact points
         .build();
 
       System.out.println("    setting the inventory mapper for DAO");
@@ -57,7 +60,9 @@ public class CassandraDb {
       // AMigrationRunner.runMigrations();
       // TODO they don't recommend changing keyspace during a run. Not sure when you're supposed to set it htough
       // NOTE I think I don't need this anymore,, because we're setting keyspace above
-      session.execute("USE " + keyspaceName + ";");
+      if (useKeyspaceOnInit) {
+        session.execute("USE " + keyspaceName + ";");
+      }
     } catch (Exception e) {
       // TODO remove this try catch, we'll just catch later
       e.printStackTrace();

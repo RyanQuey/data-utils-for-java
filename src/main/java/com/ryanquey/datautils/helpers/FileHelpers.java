@@ -52,6 +52,7 @@ public class FileHelpers {
   
   // note that filename can also be a relative path, relative to the class path, eg "podcast-data/my-file.json"
   // https://stackoverflow.com/questions/17351043/how-to-get-absolute-path-to-file-in-resources-folder-of-your-project
+  // take the name of a file in our resources directory, and returns the absolute path to where it will be after compilation
   public static String getFilePath (String filename) 
     throws IOException { 
       try  {
@@ -70,7 +71,7 @@ public class FileHelpers {
       }
   }
 
-	// returns a string of all files recursively, when given a directory
+	// returns a string of all files recursively, when given a list of files
 	// TODO untested
   public static List<String> getFilenamesFor (List<File> files) {
     ArrayList<String> fileNames = new ArrayList<String>();
@@ -90,6 +91,22 @@ public class FileHelpers {
     return fileNames;
 	}
 
+  // read all files in a dir 
+  // https://stackoverflow.com/a/1844695/6952495
+  //
+  // then use doing something like:
+  // for (File file : listOfFiles) {
+  //   if (file.isFile()) {
+  //     System.out.println(file.getName());
+  //   }
+  // }
+  public static File[] getFilesFromDir (String pathToDir) {
+    File folder = new File(pathToDir);
+    File[] listOfFiles = folder.listFiles();
+
+    return listOfFiles;
+  } 
+
   // NOTE no longer using
   // returns path to src resource directory
   public static String getResourcesDir() {
@@ -103,6 +120,7 @@ public class FileHelpers {
   // finds a file from our source resource directory
   public static String getResourceFilePath(String filename) {
     return getResourcesDir() + "/" + filename;
-  }
 
+  }
 }
+
