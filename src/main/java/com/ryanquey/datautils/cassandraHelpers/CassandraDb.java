@@ -16,16 +16,21 @@ import java.time.LocalDateTime;
 
 // import com.datastax.oss.driver.api.core.servererrors.InvalidQueryException;
 
+/*
+ *
+ * TODO
+ * - make singleton class...currently using as Guice eager loader though, so maybe do not need to specify anything here
+ */ 
 public class CassandraDb {
   static InetSocketAddress cassandraIP;
   
+  // InventoryMapper is our interface, built off of C* java driver stuff
+  // We set this field here so that whatever class initializes CassandraDb can set their inventoryMapper on CassandraDb to have a globally available instance of inventoryMapper to use wherever CassandraDb is imported. 
   public static InventoryMapper inventoryMapper;
   public static CqlSession session;
   public static String keyspaceName;
   public static Boolean useKeyspaceOnInit = true;
     
-  // InventoryMapper is our class, built off of C* java driver stuff
-
   public static void initialize (String keyspaceNameStr) throws Exception {
     try {
       String kafkaIPAndPortStr = System.getenv("KAFKA_URL") != null ? System.getenv("KAFKA_URL") : "localhost:9092";
@@ -52,10 +57,6 @@ public class CassandraDb {
           .build();
 
         System.out.println("    setting the inventory mapper for DAO");
-        inventoryMapper = InventoryMapper
-          .builder(CassandraDb.session) // calls the builder method we defined in our InventoryMapper class, which is wrapper for InventoryMapperBuilder
-          .withDefaultKeyspace(keyspaceName)
-          .build();
 
         // create keyspace if doesn't exist already, and initialize tables
         System.out.println("    running db migrations");
@@ -70,10 +71,6 @@ public class CassandraDb {
           .build();
 
         System.out.println("    setting the inventory mapper for DAO");
-        inventoryMapper = InventoryMapper
-          .builder(CassandraDb.session) // calls the builder method we defined in our InventoryMapper class, which is wrapper for InventoryMapperBuilder
-          .build();
-
       }
         // create keyspace if doesn't exist already, and initialize tables
         // AMigrationRunner.runMigrations();

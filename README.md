@@ -1,6 +1,8 @@
 # data utils
 
-Some utils for Cassandra, Elasticsearch, and just java in general that I like
+Some utils for Cassandra, Elasticsearch, and just java in general that I like.
+
+For examples, see my java podcast tool since that is where much of this originated
 
 ## How to add to your app
 
@@ -13,6 +15,7 @@ Some utils for Cassandra, Elasticsearch, and just java in general that I like
   @DaoFactory 
   PodcastByLanguageDao podcastByLanguageDao(@DaoTable String table);
   ```
+  Note that the above should be literally `table`, that's it, not any tablename or anything else.
 
 4) repackage
   ```

@@ -11,7 +11,12 @@ import com.datastax.oss.driver.api.mapper.MapperBuilder;
  *
  * https://github.com/datastax/java-driver/tree/4.x/manual/mapper
  *
- * How to get: 
+ * How to take advantage of this interface in your app:
+ * - Extend it, then instantiate it (ONLY ONCE) and then put it on your CassandraDb class as a class var
+ * - Then you will have all these daos easily accessible
+ * - See my intertextuality graph project for an example
+ *
+ * How to use: 
  *  InventoryMapper inventoryMapper = InventoryMapper.builder(session).build();
  *  PodcastDao dao = inventoryMapper.podcastDao("podcast_analysis_tool", "podcasts_by_language");
  *  dao.findById("this-is-the-podcast-id");
