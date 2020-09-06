@@ -26,7 +26,8 @@ public class CassandraDb {
   
   // InventoryMapper is our interface, built off of C* java driver stuff
   // We set this field here so that whatever class initializes CassandraDb can set their inventoryMapper on CassandraDb to have a globally available instance of inventoryMapper to use wherever CassandraDb is imported. 
-  public static InventoryMapper inventoryMapper;
+  // if project wants to have this convenience, they will have to set it themselves.
+  public static Object inventoryMapper;
   public static CqlSession session;
   public static String keyspaceName;
   public static Boolean useKeyspaceOnInit = true;
