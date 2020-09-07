@@ -65,4 +65,6 @@ If you want to bump the version, use don't want to use env vars for that in the 
 1) update the pom.xml var `project-package.version`
 2) In parent project that uses this, set an env var there, and reference the new version, so other projects can find the pom/jar file with the new version. 
 
-In my projects, this looks like changing a script that changes all the env vars
+In my projects, this looks like changing a script that changes all the env vars. I like to use $DATA_UTILS_VERSION
+
+Note that this env vars stuff is only for the sake of the parent project; this repo does not use it at all (currently)
