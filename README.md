@@ -55,3 +55,14 @@ TODO Project specific stuff should be included in gitignore
 - How to hide InventoryMapper stuff? `src/main/java/com/ryanquey/datautils/cassandraHelpers/InventoryMapper.java`
 
 See example in my `intertextuality-graph` project
+
+### Installing to local repo 
+use ./scripts/install-data-utils-jar.sh
+
+### Versioning
+
+If you want to bump the version, use don't want to use env vars for that in the pom.xml itself, since that would mean we couldn't keep track of the version of this project independent of other projects that use it as submodule. Better to just:
+1) update the pom.xml var `project-package.version`
+2) In parent project that uses this, set an env var there, and reference the new version, so other projects can find the pom/jar file with the new version. 
+
+In my projects, this looks like changing a script that changes all the env vars

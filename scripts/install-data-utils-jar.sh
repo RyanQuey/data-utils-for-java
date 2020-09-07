@@ -11,12 +11,17 @@ fi
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 . $parent_path/../../scripts/config/env-vars.sh
 
-version=0.4.0
-artifactId=data-utils
-mvn install:install-file \
-  -Dfile=$parent_path/../target/$artifactId-$version.jar \
-  -DgroupId=com.ryanquey \
-  -DartifactId=$artifactId \
-  -Dversion=$version \
-  -Dpackaging=jar \
-  -DgeneratePom=true
+#version=${DATA_UTILS_VERSION:-0.5.0}
+
+#artifactId=data-utils
+
+# This way works, but we don't need this level of specificity right now. Just do mvn install, and that will update the version based on the pom which is better
+# mvn install:install-file \
+#   -Dfile=$parent_path/../target/$artifactId-$version.jar \
+#   -DgroupId=com.ryanquey \
+#   -DartifactId=$artifactId \
+#   -Dversion=$version \
+#   -Dpackaging=jar \
+#   -DgeneratePom=true
+
+mvn install
