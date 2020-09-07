@@ -9,6 +9,8 @@ fi
 
 # always base everything relative to this file to make it simple
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+
+# This assumes parent project has a scripts dir with layout like this. If it doesn't, comment out
 . $parent_path/../../scripts/config/env-vars.sh
 
 #version=${DATA_UTILS_VERSION:-0.5.0}
@@ -24,5 +26,5 @@ parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 #   -Dpackaging=jar \
 #   -DgeneratePom=true
 
-cd $parent_path
+cd $parent_path/..
 mvn install
