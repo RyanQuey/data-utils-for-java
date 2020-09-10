@@ -1,4 +1,5 @@
 package com.ryanquey.datautils.cassandraHelpers;
+
 import com.ryanquey.datautils.helpers.FileHelpers;
 import java.util.List;
 import java.util.ArrayList;
