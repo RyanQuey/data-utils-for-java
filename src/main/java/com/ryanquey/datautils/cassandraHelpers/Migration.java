@@ -19,11 +19,15 @@ class Migration {
 		  // there's another match, continue
 			count++;
 			cqlCommand = cqlCommand.substring(index + 1);
-			index = cqlCommand.indexOf("is");
+
+			// check again
+			index = cqlCommand.indexOf(";");
 		}
 
     if (count != 1) {
       throw new Exception("One cqlCommand query is required, and only one. We found " + count);
+    } else {
+      System.out.println("DEBUG commands found: " + count);
     }
 
 
@@ -38,6 +42,7 @@ class Migration {
       // be careful with these ones, since we don't want to change these all the time.
       // Add a conditional, checking if keyspace is the same...later
       // For now, just skip. We don't want there to be multiple ALTER KEYSPACES, how would you check the logic then?
+      // Also, they arrange the command e.g., with graph engine putting it at the end instead of middle of query
       throw new Exception("Not allowing ALTER KEYSPACE commands currently, do that separately to avoid back and forth keyspace changes");
 
       // barring comments for now. Though later, could add it back in and just remove all comments, but that would take more work
