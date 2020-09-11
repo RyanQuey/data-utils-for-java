@@ -50,6 +50,9 @@ git submodule update
 1) each migration should be in plaintext, and contain only a single cql command (i.e., only use ; once).
   * Technically we could allow more than one command, but for now validation requires checking each command and one command per file (particularly, ALTER TABLE calls are the only ones that are allowed to fail).
 2) files should have .cql extension. If they don't, we will not run that file.
+3) ALTER KEYSPACE commands are not currently handled, since we don't want multiple changes to happen every migration run. Do these yourself manually. Probably best to just maintain a file that shows what keyspace should just be, so users can just set it up instantly. My default is to just make first migration 0000CreateKeyspace.cql
+4) Other rules may also be added...e.g., right now, not allowing comments in opening line, for easier parsing of the command
+
 ## Development
 TODO Project specific stuff should be included in gitignore
 - How to hide InventoryMapper stuff? `src/main/java/com/ryanquey/datautils/cassandraHelpers/InventoryMapper.java`
