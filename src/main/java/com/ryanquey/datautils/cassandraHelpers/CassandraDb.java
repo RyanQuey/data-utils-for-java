@@ -32,6 +32,9 @@ public class CassandraDb {
   public static String keyspaceName;
   public static Boolean useKeyspaceOnInit = true;
     
+  /*
+   * NOTE assumes migrations have already been ran
+   */
   public static void initialize (String keyspaceNameStr) throws Exception {
     try {
       String kafkaIPAndPortStr = System.getenv("KAFKA_URL") != null ? System.getenv("KAFKA_URL") : "localhost:9092";
@@ -61,8 +64,6 @@ public class CassandraDb {
 
         // create keyspace if doesn't exist already, and initialize tables
         System.out.println("    running db migrations");
-        // AMigrationRunner.runMigrations();
-        // TODO they don't recommend changing keyspace during a run. Not sure when you're supposed to set it htough
         // NOTE I think I don't need this anymore,, because we're setting keyspace above
         session.execute("USE " + keyspaceName + ";");
       } else {
@@ -73,10 +74,6 @@ public class CassandraDb {
 
         System.out.println("    setting the inventory mapper for DAO");
       }
-        // create keyspace if doesn't exist already, and initialize tables
-        // AMigrationRunner.runMigrations();
-        // TODO they don't recommend changing keyspace during a run. Not sure when you're supposed to set it htough
-        // NOTE I think I don't need this anymore,, because we're setting keyspace above
     } catch (Exception e) {
       // TODO remove this try catch, we'll just catch later
       e.printStackTrace();

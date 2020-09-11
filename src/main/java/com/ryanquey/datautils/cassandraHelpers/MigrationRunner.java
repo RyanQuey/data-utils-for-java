@@ -79,6 +79,7 @@ class MigrationRunner {
     MigrationRunner.pathToMigrations = args[1];
   }
 
+  // not running from within java job anymore, use cli, since should only be ran manually
   public static void main (String[] args) throws Exception {
     try {
       processArgs(args);

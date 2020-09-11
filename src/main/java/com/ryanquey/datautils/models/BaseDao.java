@@ -56,7 +56,7 @@ public interface BaseDao<T> {
    * Update using a template: the template must have its full primary key set; beyond that, any
    * non-null field will be considered as a value to SET on the target row.
    *
-   * Also does upserts
+   * Also does up-serts
    *
    * <p>Note that we specify the null saving strategy for emphasis, but this is the default.
    *
