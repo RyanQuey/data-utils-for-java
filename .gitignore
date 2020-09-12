@@ -2,6 +2,7 @@ create_es_indices/*.json
 
 # https://github.com/github/gitignore/blob/master/Java.gitignore
 # Compiled class file
+target/
 *.class
 
 # Log file
