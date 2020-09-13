@@ -6,6 +6,7 @@ import java.lang.IllegalAccessException;
 public class DataClassesHelpers {
 	// copies from objA to objB
 	// https://stackoverflow.com/a/8132962/6952495
+	// Another option: https://stackoverflow.com/a/24866702/6952495 - is much more elegant, less code, uses BeanUtils.
   static public void copyMatchingFields (Object objA, Object objB) throws Exception {
     Class objAClass = objA.getClass();
     Class objBClass = objB.getClass();

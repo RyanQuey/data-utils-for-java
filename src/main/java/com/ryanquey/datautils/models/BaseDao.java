@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.mapper.annotations.Dao;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
 import com.datastax.oss.driver.api.mapper.annotations.Update;
 import com.datastax.oss.driver.api.mapper.annotations.Insert;
+import com.datastax.oss.driver.api.mapper.annotations.Query;
 import com.datastax.oss.driver.api.mapper.entity.saving.NullSavingStrategy;
 import com.datastax.oss.driver.api.mapper.annotations.DefaultNullSavingStrategy;
 import java.util.UUID;
@@ -19,9 +20,17 @@ public interface BaseDao<T> {
   // @Select
   // T findOne(Integer primaryKey1, String primaryKey2);
 
-  /*
-  @Select(customWhereClause = "podcast_api = ':podcastApi' AND podcast_api_id = ':podcastApiId'")
-  Record findAllByPodcast(String podcastApi, String podcastApiId);
+
+  /* failed attempts to use solr queries through the dao
+  // @Select(customWhereClause = "solr_query = :solrQuery")
+  // @Select(customWhereClause = ":solrQuery")
+  //@Select(customWhereClause = " :solrQuery ")
+  //T findOneBySolr(String solrQuery); 
+
+  // @Query(":query")
+  // T findOneByQuery(String query); 
+  */
+
   /**
    * Selection by partial primary key, this will return multiple rows.
    *
