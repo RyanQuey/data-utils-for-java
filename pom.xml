@@ -21,13 +21,6 @@
 			<version>29.0-jre</version>
 		</dependency>
 
-    <!-- https://github.com/datastax/java-driver/tree/4.x/manual/core/logging#setup. 
-      when didn't use this one, would silently fail if we forgot to start our db before running package -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.28</version>
-    </dependency>
     <!-- datastax/cassandra stuff -->
 		<dependency>
 			<groupId>com.datastax.oss</groupId>
