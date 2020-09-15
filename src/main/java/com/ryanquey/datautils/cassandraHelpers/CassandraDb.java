@@ -9,6 +9,14 @@ import com.datastax.oss.driver.api.core.data.CqlDuration;
 import static com.datastax.oss.driver.api.querybuilder.QueryBuilder.*;
 import com.datastax.oss.driver.api.querybuilder.term.Term;
 import java.net.InetSocketAddress;
+// for graph stuff 
+// TODO maybe move all this to separate project, to avoid having to put all of these graph dependencies into every project I do
+import static com.datastax.dse.driver.api.core.graph.DseGraph.g;
+// GraphResultSet
+import com.datastax.dse.driver.api.core.graph.*;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.*;
+import org.apache.tinkerpop.gremlin.structure.*;
+
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -153,5 +161,41 @@ public class CassandraDb {
 
     // p for period, T for time. Alternative ISO 8601 format
     return CqlDuration.from(String.format("PT%s:%s:%s", hours, minutes, seconds));
+  }
+
+  /*
+   * https://docs.datastax.com/en/developer/java-driver/4.8/manual/core/dse/graph/
+   * For "Building a traversal with the TinkerPop fluent API, and executing it explicitly with the session"
+   *
+   * Use doing something like this:
+   * GraphTraversal<Vertex, Vertex> traversal = g.V().has("name", "marko");
+   *
+   * GraphResultSet result = CassandraDb.executeGraphTraversalexecute(statement);
+   * for (GraphNode node : result) {
+   *   System.out.println(node.asVertex());
+   * }
+   */
+  public static GraphResultSet executeGraphTraversal(GraphTraversal<Vertex, Vertex> traversal) {
+    FluentGraphStatement statement = FluentGraphStatement.newInstance(traversal);
+    GraphResultSet result = CassandraDb.session.execute(statement);
+
+    return result;
+  }
+
+  /*
+   * https://docs.datastax.com/en/developer/java-driver/4.8/manual/core/dse/graph/
+   * For "Building a connected traversal with the fluent API, and executing it implicitly by invoking a terminal step"
+   *
+   * Use doing something like this:
+   * GraphTraversalSource g = CassandraDb.getGraphTraversalSource();
+   * List<Vertex> vertices = g.V().has("name", "marko").toList();
+   *
+   * TODO The method withRemote(RemoteConnection) from the type GraphTraversalSource is deprecated [67108967]. However, it's what DS uses in their docs, so keeping for now
+   */
+  public static GraphTraversalSource getGraphTraversalSource(GraphTraversal<Vertex, Vertex> traversal) {
+    GraphTraversalSource g = DseGraph.g
+          .withRemote(DseGraph.remoteConnectionBuilder(CassandraDb.session).build());
+
+    return g;
   }
 }
