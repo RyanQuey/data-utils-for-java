@@ -20,11 +20,10 @@ public interface BaseDao<T> {
   // @Select
   // T findOne(Integer primaryKey1, String primaryKey2);
 
-  // https://community.datastax.com/questions/8352/support-for-solr-query-in-java-driver-mapper.html
-  // https://github.com/msmygit/dse-titbits/blob/master/java-driver-4.x/src/main/java/com/madhavan/demos/mapper/ExampleDao.java#L24
-  // of course only works on nodes with search enabled
+  /* works if you put in the dao itself, not working on the base dao though, consistently returns "java.lang.IllegalArgumentException: arg0 is not a variable in this bound statement" 
   @Select(customWhereClause = "solr_query = :solr_query")
   T findOneBySolr(String solr_query); 
+  */
 
   /* failed attempts to use solr queries through the dao
   // @Select(customWhereClause = "solr_query = :solrQuery")
