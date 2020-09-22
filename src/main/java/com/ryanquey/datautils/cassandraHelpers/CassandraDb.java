@@ -39,11 +39,18 @@ public class CassandraDb {
   public static CqlSession session;
   public static String keyspaceName;
   public static Boolean useKeyspaceOnInit = true;
+  public static GraphTraversalSource g;
     
   /*
    * NOTE assumes migrations have already been ran
    */
+
+  // if no boolean passed, assumes no graph
   public static void initialize (String keyspaceNameStr) throws Exception {
+    CassandraDb.initialize(keyspaceNameStr, false);
+  }
+
+  public static void initialize (String keyspaceNameStr, Boolean useGraph) throws Exception {
     try {
       String kafkaIPAndPortStr = System.getenv("KAFKA_URL") != null ? System.getenv("KAFKA_URL") : "localhost:9092";
       String cassandraIPStr = System.getenv("CASSANDRA_URL") != null ? System.getenv("CASSANDRA_URL") : "127.0.0.1"; 
@@ -82,6 +89,13 @@ public class CassandraDb {
 
         System.out.println("    setting the inventory mapper for DAO");
       }
+
+
+      // if graph enabled, initialize graph session also
+      if (useGraph) {
+        CassandraDb.g = CassandraDb.getGraphTraversalSource();
+      }
+
     } catch (Exception e) {
       // TODO remove this try catch, we'll just catch later
       e.printStackTrace();
@@ -92,6 +106,8 @@ public class CassandraDb {
   // close session when not actively using...or just when everything is finished running?
   public static void closeSession () {
     session.close();
+    //TODO find out if have to close GraphTraversalSource
+    // something like: g.close()
   }
 
   public static ResultSet execute (String cql) {
@@ -170,7 +186,7 @@ public class CassandraDb {
    * Use doing something like this:
    * GraphTraversal<Vertex, Vertex> traversal = g.V().has("name", "marko");
    *
-   * GraphResultSet result = CassandraDb.executeGraphTraversalexecute(statement);
+   * GraphResultSet result = CassandraDb.executeGraphTraversal(statement);
    * for (GraphNode node : result) {
    *   System.out.println(node.asVertex());
    * }
@@ -190,9 +206,15 @@ public class CassandraDb {
    * GraphTraversalSource g = CassandraDb.getGraphTraversalSource();
    * List<Vertex> vertices = g.V().has("name", "marko").toList();
    *
+   * for an app, consider calling once on initialization and setting on the CassandraDb class as static field, so you don't start too many sessions
+   * (can just pass in true for useGraph arg when calling CassandraDb.initialize and that will do it for you)
+   *
+   * CassandraDb.initialize("my-ks", true)
+   * CassandraDb.g.V()
+   *
    * TODO The method withRemote(RemoteConnection) from the type GraphTraversalSource is deprecated [67108967]. However, it's what DS uses in their docs, so keeping for now
    */
-  public static GraphTraversalSource getGraphTraversalSource(GraphTraversal<Vertex, Vertex> traversal) {
+  public static GraphTraversalSource getGraphTraversalSource() {
     GraphTraversalSource g = DseGraph.g
           .withRemote(DseGraph.remoteConnectionBuilder(CassandraDb.session).build());
 
