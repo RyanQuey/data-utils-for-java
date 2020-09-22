@@ -26,6 +26,13 @@ For examples, see my java podcast tool since that is where much of this originat
 6) Put the jar in `./lib`
   See [here](https://www.playframework.com/documentation/2.8.x/sbtDependencies) for more. I guess that's where play looks for jars.
 
+7) Config
+- Especially if you are using graph, but maybe otherwise at all, be sure that somewhere in your classpath is an applicaiton.conf file. 
+  * If you are using graph, make sure to designate the graph name
+    - this file seems to be Required if using graph, optional if using just some basic cassandra features
+    - https://docs.datastax.com/en/developer/java-driver/4.9/manual/core/configuration/
+    - https://community.datastax.com/answers/4545/view.html
+
 ### Alternatively add this project as a submodule
 ```
 cd <my-parent-project>
