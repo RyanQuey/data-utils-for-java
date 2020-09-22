@@ -94,6 +94,11 @@ public class CassandraDb {
       // if graph enabled, initialize graph session also
       if (useGraph) {
         CassandraDb.g = CassandraDb.getGraphTraversalSource();
+
+        if (CassandraDb.g == null) {
+          // since usingGraph was requested, something went wrong
+          throw new Exception("ERROR initializing GraphTraversalSource");
+        } 
       }
 
     } catch (Exception e) {
@@ -215,6 +220,8 @@ public class CassandraDb {
    * TODO The method withRemote(RemoteConnection) from the type GraphTraversalSource is deprecated [67108967]. However, it's what DS uses in their docs, so keeping for now
    */
   public static GraphTraversalSource getGraphTraversalSource() {
+    System.out.println("Initializing graph traversal source");
+
     GraphTraversalSource g = DseGraph.g
           .withRemote(DseGraph.remoteConnectionBuilder(CassandraDb.session).build());
 
