@@ -16,6 +16,8 @@ import static com.datastax.dse.driver.api.core.graph.DseGraph.g;
 import com.datastax.dse.driver.api.core.graph.*;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.*;
 import org.apache.tinkerpop.gremlin.structure.*;
+import com.datastax.dse.driver.api.core.graph.ScriptGraphStatement;
+import org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource;
 
 
 import java.time.Instant;
@@ -39,7 +41,8 @@ public class CassandraDb {
   public static CqlSession session;
   public static String keyspaceName;
   public static Boolean useKeyspaceOnInit = true;
-  public static GraphTraversalSource g;
+  // not using "g" since we're also importing g from datastax
+  public static GraphTraversalSource graph;
     
   /*
    * NOTE assumes migrations have already been ran
@@ -93,9 +96,9 @@ public class CassandraDb {
 
       // if graph enabled, initialize graph session also
       if (useGraph) {
-        CassandraDb.g = CassandraDb.getGraphTraversalSource();
+        CassandraDb.graph = CassandraDb.getGraphTraversalSource();
 
-        if (CassandraDb.g == null) {
+        if (CassandraDb.graph == null) {
           // since usingGraph was requested, something went wrong
           throw new Exception("ERROR initializing GraphTraversalSource");
         } 
@@ -186,15 +189,18 @@ public class CassandraDb {
 
   /*
    * https://docs.datastax.com/en/developer/java-driver/4.8/manual/core/dse/graph/
-   * For "Building a traversal with the TinkerPop fluent API, and executing it explicitly with the session"
+   * For "Building a traversal with the TinkerPop fluent API, and executing it explicitly with the session" (in contrast with implicit execution)
    *
    * Use doing something like this:
+   * import static com.datastax.dse.driver.api.core.graph.DseGraph.g;
    * GraphTraversal<Vertex, Vertex> traversal = g.V().has("name", "marko");
    *
    * GraphResultSet result = CassandraDb.executeGraphTraversal(statement);
    * for (GraphNode node : result) {
    *   System.out.println(node.asVertex());
    * }
+   *
+   * Note that you can also just do g.V().next() for example, don't need to use executeGraphGraversal necessarily...I think
    */
   public static GraphResultSet executeGraphTraversal(GraphTraversal<Vertex, Vertex> traversal) {
     FluentGraphStatement statement = FluentGraphStatement.newInstance(traversal);
@@ -203,9 +209,17 @@ public class CassandraDb {
     return result;
   }
 
+  public static GraphResultSet executeGraphString(String groovyString) {
+    ScriptGraphStatement statement = ScriptGraphStatement.newInstance(groovyString);
+    GraphResultSet result = CassandraDb.session.execute(statement);
+
+    return result;
+  }
+
+
   /*
-   * https://docs.datastax.com/en/developer/java-driver/4.8/manual/core/dse/graph/
    * For "Building a connected traversal with the fluent API, and executing it implicitly by invoking a terminal step"
+   * https://docs.datastax.com/en/developer/java-driver/4.8/manual/core/dse/graph/
    *
    * Use doing something like this:
    * GraphTraversalSource g = CassandraDb.getGraphTraversalSource();
@@ -215,16 +229,18 @@ public class CassandraDb {
    * (can just pass in true for useGraph arg when calling CassandraDb.initialize and that will do it for you)
    *
    * CassandraDb.initialize("my-ks", true)
-   * CassandraDb.g.V()
+   * CassandraDb.graph.V()
    *
    * TODO The method withRemote(RemoteConnection) from the type GraphTraversalSource is deprecated [67108967]. However, it's what DS uses in their docs, so keeping for now
    */
   public static GraphTraversalSource getGraphTraversalSource() {
     System.out.println("Initializing graph traversal source");
 
-    GraphTraversalSource g = DseGraph.g
+    // GraphTraversalSource g = DseGraph.g
+    // https://docs.datastax.com/en/developer/java-driver/4.9/manual/core/dse/graph/fluent/implicit/
+    GraphTraversalSource graph = AnonymousTraversalSource.traversal()
           .withRemote(DseGraph.remoteConnectionBuilder(CassandraDb.session).build());
 
-    return g;
+    return graph;
   }
 }
