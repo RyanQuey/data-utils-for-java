@@ -10,6 +10,7 @@ import com.datastax.oss.driver.api.core.data.CqlDuration;
 import static com.datastax.oss.driver.api.querybuilder.QueryBuilder.*;
 import com.datastax.oss.driver.api.querybuilder.term.Term;
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 // for graph stuff 
 // TODO maybe move all this to separate project, to avoid having to put all of these graph dependencies into every project I do
 import static com.datastax.dse.driver.api.core.graph.DseGraph.g;
@@ -44,6 +45,7 @@ public class CassandraDb {
   public static Boolean useKeyspaceOnInit = true;
   // not using "g" since we're also importing g from datastax
   public static GraphTraversalSource graph;
+  private static Boolean initialized = false;
     
   /*
    * NOTE assumes migrations have already been ran
@@ -55,72 +57,91 @@ public class CassandraDb {
   }
 
   public static void initialize (String keyspaceNameStr, Boolean useGraph) throws Exception {
-    try {
-      String kafkaIPAndPortStr = System.getenv("KAFKA_URL") != null ? System.getenv("KAFKA_URL") : "localhost:9092";
-      String cassandraIPStr = System.getenv("CASSANDRA_URL") != null ? System.getenv("CASSANDRA_URL") : "127.0.0.1"; 
-      String datacenter = System.getenv("CASSANDRA_DATACENTER") != null ? System.getenv("CASSANDRA_DATACENTER") : "dc1"; 
-      Integer cassPort = System.getenv("CASSANDRA_PORT") != null ? Integer.parseInt(System.getenv("CASSANDRA_PORT")) : 9042; 
-      keyspaceName = keyspaceNameStr;
+    int failedAttempts = 0;
+    int maxAttempts = 5;
 
-      System.out.println("    URLs:");
-      System.out.println("        Cassandra IP: " + cassandraIPStr);
-      // not using kafka here, but let's just debug all in one place for now
-      // TODO move this to teh kafka code
-      System.out.println("        kafka IP: " + kafkaIPAndPortStr);
-      cassandraIP = new InetSocketAddress(cassandraIPStr, cassPort); 
+    while (!initialized) {
+      try {
+        _initialize(keyspaceNameStr, useGraph);
+        initialized = true;
+        return;
 
-      // TODO try to import ./application.conf and use that?
-      System.out.println("    setting the session");
-
-      CqlSessionBuilder builderStarter = CqlSession.builder()
-        .addContactPoint(cassandraIP)
-        .withLocalDatacenter(datacenter); // now required since we're setting contact points
-
-      if (System.getenv("CASSANDRA_PASS") != null) {
-        // add authentication
-        String cassandraUser = System.getenv("CASSANDRA_USER");
-        System.out.print("auth with plain auth user: " + cassandraUser);
-        String cassandraPassword = System.getenv("CASSANDRA_PASSWORD");
-
-        builderStarter = builderStarter.withAuthCredentials(cassandraUser, cassandraPassword);
+      } catch (Exception e) {
+        // TODO remove this try catch, we'll just catch later
+        e.printStackTrace();
+        failedAttempts ++;
+        if (failedAttempts >= maxAttempts) {
+          throw e;
+        } else {
+          System.out.println("failed on attempt " + failedAttempts + "...trying again");
+          TimeUnit.SECONDS.sleep(3);
+        }
       }
-
-      if (useKeyspaceOnInit) {
-        CqlIdentifier keyspace = CqlIdentifier.fromCql(keyspaceName);
-        CassandraDb.session = builderStarter
-          .withKeyspace(keyspace)
-          .build();
-
-        System.out.println("    setting the inventory mapper for DAO");
-
-        // create keyspace if doesn't exist already, and initialize tables
-        System.out.println("    running db migrations");
-        // NOTE I think I don't need this anymore,, because we're setting keyspace above
-        session.execute("USE " + keyspaceName + ";");
-
-      } else {
-        CassandraDb.session = builderStarter
-          .build();
-
-        System.out.println("    setting the inventory mapper for DAO");
-      }
-
-
-      // if graph enabled, initialize graph session also
-      if (useGraph) {
-        CassandraDb.graph = CassandraDb.getGraphTraversalSource();
-
-        if (CassandraDb.graph == null) {
-          // since usingGraph was requested, something went wrong
-          throw new Exception("ERROR initializing GraphTraversalSource");
-        } 
-      }
-
-    } catch (Exception e) {
-      // TODO remove this try catch, we'll just catch later
-      e.printStackTrace();
-      throw e;
     }
+  }
+
+  private static void _initialize (String keyspaceNameStr, Boolean useGraph) throws Exception {
+    String kafkaIPAndPortStr = System.getenv("KAFKA_URL") != null ? System.getenv("KAFKA_URL") : "localhost:9092";
+    String cassandraIPStr = System.getenv("CASSANDRA_URL") != null ? System.getenv("CASSANDRA_URL") : "127.0.0.1"; 
+    String datacenter = System.getenv("CASSANDRA_DATACENTER") != null ? System.getenv("CASSANDRA_DATACENTER") : "dc1"; 
+    Integer cassPort = System.getenv("CASSANDRA_PORT") != null ? Integer.parseInt(System.getenv("CASSANDRA_PORT")) : 9042; 
+    keyspaceName = keyspaceNameStr;
+
+    System.out.println("    URLs:");
+    System.out.println("        Cassandra IP: " + cassandraIPStr);
+    System.out.println("        Cassandra Port: " + cassPort);
+    System.out.println("        Cassandra local datacenter: " + datacenter);
+    System.out.println("        Cassandra keyspace: " + keyspaceNameStr);
+    // not using kafka here, but let's just debug all in one place for now
+    // TODO move this to teh kafka code
+    System.out.println("        kafka IP: " + kafkaIPAndPortStr);
+    cassandraIP = new InetSocketAddress(cassandraIPStr, cassPort); 
+
+    // TODO try to import ./application.conf and use that?
+    System.out.println("    setting the session");
+
+    CqlSessionBuilder builderStarter = CqlSession.builder()
+      .addContactPoint(cassandraIP)
+      .withLocalDatacenter(datacenter); // now required since we're setting contact points
+
+    if (System.getenv("CASSANDRA_PASS") != null) {
+      // add authentication
+      String cassandraUser = System.getenv("CASSANDRA_USER");
+      System.out.print("auth with plain auth user: " + cassandraUser);
+      String cassandraPassword = System.getenv("CASSANDRA_PASSWORD");
+
+      builderStarter = builderStarter.withAuthCredentials(cassandraUser, cassandraPassword);
+    }
+
+    if (useKeyspaceOnInit) {
+      CqlIdentifier keyspace = CqlIdentifier.fromCql(keyspaceName);
+      CassandraDb.session = builderStarter
+        .withKeyspace(keyspace)
+        .build();
+
+      System.out.println("    setting the inventory mapper for DAO");
+
+      // create keyspace if doesn't exist already, and initialize tables
+      System.out.println("    running db migrations");
+      // NOTE I think I don't need this anymore,, because we're setting keyspace above
+      session.execute("USE " + keyspaceName + ";");
+
+    } else {
+      CassandraDb.session = builderStarter
+        .build();
+
+      System.out.println("    setting the inventory mapper for DAO");
+    }
+    // if graph enabled, initialize graph session also
+    if (useGraph) {
+      CassandraDb.graph = CassandraDb.getGraphTraversalSource();
+
+      if (CassandraDb.graph == null) {
+        // since usingGraph was requested, something went wrong
+        throw new Exception("ERROR initializing GraphTraversalSource");
+      } 
+    }
+
   }
 
   // close session when not actively using...or just when everything is finished running?
