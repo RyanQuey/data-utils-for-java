@@ -1,6 +1,7 @@
 package com.ryanquey.datautils.cassandraHelpers;
 
 import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.CqlSessionBuilder;
 import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
@@ -57,7 +58,8 @@ public class CassandraDb {
     try {
       String kafkaIPAndPortStr = System.getenv("KAFKA_URL") != null ? System.getenv("KAFKA_URL") : "localhost:9092";
       String cassandraIPStr = System.getenv("CASSANDRA_URL") != null ? System.getenv("CASSANDRA_URL") : "127.0.0.1"; 
-      String datacenter = System.getenv("CASSANDRA_DATACENTER") != null ? System.getenv("CASSANDRA_URL") : "dc1"; 
+      String datacenter = System.getenv("CASSANDRA_DATACENTER") != null ? System.getenv("CASSANDRA_DATACENTER") : "dc1"; 
+      Integer cassPort = System.getenv("CASSANDRA_PORT") != null ? Integer.parseInt(System.getenv("CASSANDRA_PORT")) : 9042; 
       keyspaceName = keyspaceNameStr;
 
       System.out.println("    URLs:");
@@ -65,17 +67,28 @@ public class CassandraDb {
       // not using kafka here, but let's just debug all in one place for now
       // TODO move this to teh kafka code
       System.out.println("        kafka IP: " + kafkaIPAndPortStr);
-      cassandraIP = new InetSocketAddress(cassandraIPStr, 9042); 
+      cassandraIP = new InetSocketAddress(cassandraIPStr, cassPort); 
 
       // TODO try to import ./application.conf and use that?
       System.out.println("    setting the session");
 
+      CqlSessionBuilder builderStarter = CqlSession.builder()
+        .addContactPoint(cassandraIP)
+        .withLocalDatacenter(datacenter); // now required since we're setting contact points
+
+      if (System.getenv("CASSANDRA_PASS") != null) {
+        // add authentication
+        String cassandraUser = System.getenv("CASSANDRA_USER");
+        System.out.print("auth with plain auth user: " + cassandraUser);
+        String cassandraPassword = System.getenv("CASSANDRA_PASSWORD");
+
+        builderStarter = builderStarter.withAuthCredentials(cassandraUser, cassandraPassword);
+      }
+
       if (useKeyspaceOnInit) {
         CqlIdentifier keyspace = CqlIdentifier.fromCql(keyspaceName);
-        CassandraDb.session = CqlSession.builder()
+        CassandraDb.session = builderStarter
           .withKeyspace(keyspace)
-          .addContactPoint(cassandraIP)
-          .withLocalDatacenter(datacenter) // now required since we're setting contact points
           .build();
 
         System.out.println("    setting the inventory mapper for DAO");
@@ -84,10 +97,9 @@ public class CassandraDb {
         System.out.println("    running db migrations");
         // NOTE I think I don't need this anymore,, because we're setting keyspace above
         session.execute("USE " + keyspaceName + ";");
+
       } else {
-        CassandraDb.session = CqlSession.builder()
-          .addContactPoint(cassandraIP)
-          .withLocalDatacenter(datacenter) // now required since we're setting contact points
+        CassandraDb.session = builderStarter
           .build();
 
         System.out.println("    setting the inventory mapper for DAO");
