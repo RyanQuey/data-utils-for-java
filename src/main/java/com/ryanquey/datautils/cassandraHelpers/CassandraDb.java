@@ -44,6 +44,7 @@ public class CassandraDb {
   public static String keyspaceName;
   public static Boolean useKeyspaceOnInit = true;
   // not using "g" since we're also importing g from datastax
+  // note that by convention, GraphTraversalSource should be "g" not "graph"; "graph" is for something else
   public static GraphTraversalSource graph;
   private static Boolean initialized = false;
     
@@ -222,7 +223,7 @@ public class CassandraDb {
 
   /*
    * https://docs.datastax.com/en/developer/java-driver/4.8/manual/core/dse/graph/
-   * For "Building a traversal with the TinkerPop fluent API, and executing it explicitly with the session" (in contrast with implicit execution)
+   * For "Building a traversal with the TinkerPop fluent API, and executing it **explicitly** with the session" (in contrast with implicit execution)
    *
    * Use doing something like this:
    * import static com.datastax.dse.driver.api.core.graph.DseGraph.g;
@@ -251,7 +252,7 @@ public class CassandraDb {
 
 
   /*
-   * For "Building a connected traversal with the fluent API, and executing it implicitly by invoking a terminal step"
+   * For "Building a connected traversal with the fluent API, and executing it **implicitly** by invoking a terminal step"
    * https://docs.datastax.com/en/developer/java-driver/4.8/manual/core/dse/graph/
    *
    * Use doing something like this:
@@ -271,6 +272,7 @@ public class CassandraDb {
 
     // GraphTraversalSource g = DseGraph.g
     // https://docs.datastax.com/en/developer/java-driver/4.9/manual/core/dse/graph/fluent/implicit/
+    // note that by convention, GraphTraversalSource should be "g" not "graph"; "graph" is for something else
     GraphTraversalSource graph = AnonymousTraversalSource.traversal()
           .withRemote(DseGraph.remoteConnectionBuilder(CassandraDb.session).build());
 
